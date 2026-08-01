@@ -12,6 +12,7 @@ import Budget from "@/pages/Budget";
 import Calendario from "@/pages/Calendario";
 import Report from "@/pages/Report";
 import Previsioni from "@/pages/Previsioni";
+import Telegram from "@/pages/Telegram";
 import Impostazioni from "@/pages/Impostazioni";
 import Login from "@/pages/Login";
 import Onboarding from "@/pages/Onboarding";
@@ -67,6 +68,7 @@ export default function App() {
           <Route path="calendario" element={<Calendario />} />
           <Route path="report" element={<Report />} />
           <Route path="previsioni" element={<Previsioni />} />
+          <Route path="telegram" element={<Telegram />} />
           <Route path="impostazioni" element={<Impostazioni />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
