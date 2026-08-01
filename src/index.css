@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 120 14% 97%;
+    --foreground: 160 15% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 160 15% 14%;
+    --primary: 160 56% 28%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 150 20% 94%;
+    --muted-foreground: 160 10% 42%;
+    --border: 150 18% 88%;
+    --success: 144 37% 48%;
+    --warning: 36 79% 57%;
+    --danger: 5 59% 44%;
+    --income: 144 37% 48%;
+    --expense: 14 74% 56%;
+    --investment: 191 52% 36%;
+    --goal: 36 79% 57%;
+    --sidebar: 160 56% 22%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-accent: 160 45% 32%;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 160 22% 8%;
+    --foreground: 150 15% 94%;
+    --card: 160 20% 12%;
+    --card-foreground: 150 15% 94%;
+    --primary: 150 45% 55%;
+    --primary-foreground: 160 30% 10%;
+    --muted: 160 18% 16%;
+    --muted-foreground: 150 10% 65%;
+    --border: 160 20% 20%;
+    --success: 144 45% 58%;
+    --warning: 36 80% 62%;
+    --danger: 5 65% 55%;
+    --income: 144 45% 58%;
+    --expense: 14 80% 62%;
+    --investment: 191 55% 50%;
+    --goal: 36 80% 62%;
+    --sidebar: 160 35% 12%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-accent: 160 30% 20%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+}
