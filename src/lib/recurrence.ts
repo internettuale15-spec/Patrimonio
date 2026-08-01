@@ -23,11 +23,11 @@ export function computeNextRunDate(input: RecurrenceInput): Date {
 
   if (input.type === "mensile") {
     const day = input.dayOfMonth ?? start.getDate();
-    return setDate(addMonths(start, 0), Math.min(day, 28));
+    return setDate(addMonths(start, 1), Math.min(day, 28));
   }
 
   // annuale
-  return addYears(start, 0);
+  return addYears(start, 1);
 }
 
 export function advanceRecurrence(current: Date, type: RecurrenceType): Date {
