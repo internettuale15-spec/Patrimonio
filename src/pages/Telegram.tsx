@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Copy, Check, Send, Bell, MessageCircle } from "lucide-react";
+import { Copy, Check, Send, Bell, MessageCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useAuthStore } from "@/store/authStore";
 import { supabase } from "@/lib/supabase";
+
+const BOT_USERNAME = "Par_Bot";
 
 function generateCode(length = 6) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // esclude caratteri ambigui
@@ -67,6 +69,18 @@ export default function Telegram() {
           )}
         </div>
 
+        <a
+          href={`https://t.me/${BOT_USERNAME}`}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-between rounded-xl bg-muted px-4 py-3 text-sm hover:bg-muted/70 transition-colors"
+        >
+          <span className="font-medium">@{BOT_USERNAME}</span>
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            Apri su Telegram <ExternalLink size={12} />
+          </span>
+        </a>
+
         {isConnected ? (
           <p className="text-sm text-muted-foreground">
             Il tuo account Telegram è collegato a questo profilo. Puoi scrivere al bot in
@@ -75,7 +89,7 @@ export default function Telegram() {
         ) : linkCode ? (
           <div className="flex flex-col gap-3">
             <p className="text-sm text-muted-foreground">
-              Apri la chat con il bot su Telegram e incolla questo messaggio:
+              Cerca <strong>@{BOT_USERNAME}</strong> su Telegram (o clicca sopra), apri la chat e incolla questo messaggio:
             </p>
             <div className="flex items-center gap-2">
               <code className="flex-1 text-base bg-muted rounded-xl px-4 py-3 text-center font-display font-semibold tracking-wider">
