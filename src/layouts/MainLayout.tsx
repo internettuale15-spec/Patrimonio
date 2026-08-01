@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard, TrendingUp, TrendingDown, Home as HomeIcon,
   LineChart, Wallet, Target, PiggyBank, Calendar as CalendarIcon,
-  FileText, Search, Moon, Sun, Sparkles, Settings, Sprout,
+  FileText, Search, Moon, Sun, Sparkles, Settings, Sprout, Send,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { to: "/calendario", label: "Calendario", icon: CalendarIcon },
   { to: "/report", label: "Report", icon: FileText },
   { to: "/previsioni", label: "Previsioni", icon: Sparkles },
+  { to: "/telegram", label: "Telegram", icon: Send },
 ];
 
 // Sottoinsieme mostrato nella bottom nav mobile (spazio limitato)
