@@ -10,6 +10,7 @@ import Patrimonio from "@/pages/Patrimonio";
 import Obiettivi from "@/pages/Obiettivi";
 import Budget from "@/pages/Budget";
 import Calendario from "@/pages/Calendario";
+import Ricorrenze from "@/pages/Ricorrenze";
 import Report from "@/pages/Report";
 import Previsioni from "@/pages/Previsioni";
 import Telegram from "@/pages/Telegram";
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="obiettivi" element={<Obiettivi />} />
           <Route path="budget" element={<Budget />} />
           <Route path="calendario" element={<Calendario />} />
+          <Route path="ricorrenze" element={<Ricorrenze />} />
           <Route path="report" element={<Report />} />
           <Route path="previsioni" element={<Previsioni />} />
           <Route path="telegram" element={<Telegram />} />
