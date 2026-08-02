@@ -8,25 +8,83 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 
-const NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/entrate", label: "Entrate", icon: TrendingUp },
-  { to: "/spese", label: "Spese", icon: TrendingDown },
-  { to: "/casa", label: "Casa", icon: HomeIcon },
-  { to: "/investimenti", label: "Investimenti", icon: LineChart },
-  { to: "/patrimonio", label: "Patrimonio", icon: Wallet },
-  { to: "/obiettivi", label: "Obiettivi", icon: Target },
-  { to: "/budget", label: "Budget", icon: PiggyBank },
-  { to: "/categorie", label: "Categorie", icon: Tags },
-  { to: "/calendario", label: "Calendario", icon: CalendarIcon },
-  { to: "/ricorrenze", label: "Ricorrenze", icon: Repeat },
-  { to: "/report", label: "Report", icon: FileText },
-  { to: "/previsioni", label: "Previsioni", icon: Sparkles },
-  { to: "/telegram", label: "Telegram", icon: Send },
+interface NavItem {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  end?: boolean;
+}
+
+// Menu raggruppato per area di senso, non più un elenco piatto di 14 voci —
+// riduce il carico cognitivo di dover scorrere tutto per trovare quello che serve.
+const NAV_GROUPS: { label: string | null; items: NavItem[] }[] = [
+  {
+    label: null,
+    items: [{ to: "/", label: "Dashboard", icon: LayoutDashboard, end: true }],
+  },
+  {
+    label: "Movimenti",
+    items: [
+      { to: "/entrate", label: "Entrate", icon: TrendingUp },
+      { to: "/spese", label: "Spese", icon: TrendingDown },
+      { to: "/casa", label: "Casa", icon: HomeIcon },
+    ],
+  },
+  {
+    label: "Patrimonio",
+    items: [
+      { to: "/investimenti", label: "Investimenti", icon: LineChart },
+      { to: "/patrimonio", label: "Patrimonio", icon: Wallet },
+      { to: "/obiettivi", label: "Obiettivi", icon: Target },
+    ],
+  },
+  {
+    label: "Pianificazione",
+    items: [
+      { to: "/budget", label: "Budget", icon: PiggyBank },
+      { to: "/ricorrenze", label: "Ricorrenze", icon: Repeat },
+      { to: "/calendario", label: "Calendario", icon: CalendarIcon },
+    ],
+  },
+  {
+    label: "Strumenti",
+    items: [
+      { to: "/categorie", label: "Categorie", icon: Tags },
+      { to: "/report", label: "Report", icon: FileText },
+      { to: "/previsioni", label: "Previsioni", icon: Sparkles },
+      { to: "/telegram", label: "Telegram", icon: Send },
+    ],
+  },
 ];
 
-// Sottoinsieme mostrato nella bottom nav mobile (spazio limitato)
-const MOBILE_NAV_ITEMS = NAV_ITEMS.slice(0, 5);
+// Le 4 destinazioni più usate quotidianamente, per la bottom nav mobile
+// (spazio limitato — il resto resta raggiungibile da "Tu" → menu completo)
+const MOBILE_NAV_ITEMS: NavItem[] = [
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/spese", label: "Spese", icon: TrendingDown },
+  { to: "/entrate", label: "Entrate", icon: TrendingUp },
+  { to: "/budget", label: "Budget", icon: PiggyBank },
+];
+
+function NavItemLink({ item }: { item: NavItem }) {
+  return (
+    <NavLink
+      to={item.to}
+      end={item.end}
+      className={({ isActive }) =>
+        cn(
+          "flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors",
+          isActive
+            ? "bg-white text-primary shadow-sm"
+            : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+        )
+      }
+    >
+      <item.icon size={18} />
+      {item.label}
+    </NavLink>
+  );
+}
 
 export default function MainLayout() {
   const [dark, setDark] = useState(false);
@@ -42,8 +100,8 @@ export default function MainLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       {/* Sidebar desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground p-4 gap-1 shrink-0">
-        <div className="flex items-center justify-between mb-6 px-2">
+      <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground p-4 gap-0.5 shrink-0 overflow-y-auto">
+        <div className="flex items-center justify-between mb-4 px-2">
           <span className="font-display font-semibold text-lg flex items-center gap-2">
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/15">
               <Sprout size={18} />
@@ -54,26 +112,21 @@ export default function MainLayout() {
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-white text-primary shadow-sm"
-                  : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-              )
-            }
-          >
-            <Icon size={18} />
-            {label}
-          </NavLink>
+
+        {NAV_GROUPS.map((group, i) => (
+          <div key={group.label ?? "root"} className={cn("flex flex-col gap-0.5", i > 0 && "mt-3")}>
+            {group.label && (
+              <span className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-sidebar-foreground/45">
+                {group.label}
+              </span>
+            )}
+            {group.items.map((item) => (
+              <NavItemLink key={item.to} item={item} />
+            ))}
+          </div>
         ))}
 
-        <div className="mt-auto pt-2 border-t border-white/15">
+        <div className="mt-auto pt-3 border-t border-white/15">
           <NavLink
             to="/impostazioni"
             className={({ isActive }) =>
