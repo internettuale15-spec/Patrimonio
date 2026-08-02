@@ -1,6 +1,6 @@
 import {
   Wallet, Landmark, LineChart as LineChartIcon, TrendingUp, TrendingDown,
-  PiggyBank, PieChart as PieChartIcon, Target, ListChecks,
+  PiggyBank, PieChart as PieChartIcon, Target, ListChecks, Lightbulb, AlertTriangle, Sparkles,
 } from "lucide-react";
 import {
   AreaChart, Area, LineChart, Line, ResponsiveContainer,
@@ -9,9 +9,17 @@ import {
 import StatCard from "@/components/StatCard";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { cn } from "@/lib/utils";
+
+const INSIGHT_ICON = { warning: AlertTriangle, positive: Sparkles, neutral: Lightbulb };
+const INSIGHT_STYLE = {
+  warning: "bg-danger/10 text-danger",
+  positive: "bg-income/10 text-income",
+  neutral: "bg-investment/10 text-investment",
+};
 
 export default function Dashboard() {
-  const { loading, summary, netWorthHistory, savingsHistory, recentMovements } = useDashboardData();
+  const { loading, summary, netWorthHistory, savingsHistory, recentMovements, insights } = useDashboardData();
 
   if (loading) {
     return (
@@ -21,13 +29,27 @@ export default function Dashboard() {
     );
   }
 
-
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Panoramica del patrimonio familiare</p>
       </div>
+
+      {/* Insight automatici — "cosa sta succedendo", non solo numeri */}
+      {insights.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {insights.map((insight, i) => {
+            const Icon = INSIGHT_ICON[insight.type];
+            return (
+              <div key={i} className={cn("flex items-start gap-3 rounded-xl px-4 py-3 text-sm", INSIGHT_STYLE[insight.type])}>
+                <Icon size={16} className="mt-0.5 shrink-0" />
+                <span>{insight.text}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Widget principali */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -45,7 +67,16 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         <StatCard label="Entrate Mese" value={formatCurrency(summary.monthlyIncome)} icon={TrendingUp} accent="success" />
         <StatCard label="Spese Mese" value={formatCurrency(summary.monthlyExpense)} icon={TrendingDown} accent="danger" />
-        <StatCard label="Risparmio Mese" value={formatCurrency(summary.monthlySavings)} icon={PiggyBank} trend={{ value: "12%", positive: true }} />
+        <StatCard
+          label="Risparmio Mese"
+          value={formatCurrency(summary.monthlySavings)}
+          icon={PiggyBank}
+          trend={
+            summary.monthlySavingsTrendPct != null
+              ? { value: formatPercent(Math.abs(summary.monthlySavingsTrendPct)), positive: summary.monthlySavingsTrendPct >= 0 }
+              : undefined
+          }
+        />
         <StatCard label="Entrate Anno" value={formatCurrency(summary.yearlyIncome)} icon={TrendingUp} accent="success" />
         <StatCard label="Spese Anno" value={formatCurrency(summary.yearlyExpense)} icon={TrendingDown} accent="danger" />
         <StatCard label="Risparmio Anno" value={formatCurrency(summary.yearlySavings)} icon={PieChartIcon} />
