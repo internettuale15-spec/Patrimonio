@@ -135,6 +135,7 @@ export interface DashboardSummary {
   monthlyIncome: number;
   monthlyExpense: number;
   monthlySavings: number;
+  monthlySavingsTrendPct: number | null;
   yearlyIncome: number;
   yearlyExpense: number;
   yearlySavings: number;
