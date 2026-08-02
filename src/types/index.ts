@@ -24,6 +24,7 @@ export interface Category {
   parent_id?: string | null;
   icon?: string | null;
   color?: string | null;
+  is_default?: boolean;
 }
 
 export interface Recurrence {
