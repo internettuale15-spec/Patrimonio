@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard, TrendingUp, TrendingDown, Home as HomeIcon,
   LineChart, Wallet, Target, PiggyBank, Calendar as CalendarIcon,
-  FileText, Search, Moon, Sun, Sparkles, Settings, Sprout, Send, Repeat,
+  FileText, Search, Moon, Sun, Sparkles, Settings, Sprout, Send, Repeat, Tags,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: "/patrimonio", label: "Patrimonio", icon: Wallet },
   { to: "/obiettivi", label: "Obiettivi", icon: Target },
   { to: "/budget", label: "Budget", icon: PiggyBank },
+  { to: "/categorie", label: "Categorie", icon: Tags },
   { to: "/calendario", label: "Calendario", icon: CalendarIcon },
   { to: "/ricorrenze", label: "Ricorrenze", icon: Repeat },
   { to: "/report", label: "Report", icon: FileText },
