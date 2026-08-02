@@ -23,10 +23,17 @@ export interface TimeSeriesDatum {
 interface Props {
   data: CategoryDatum[];
   timeSeries: TimeSeriesDatum[];
+  onSelectionChange?: (name: string | null) => void;
 }
 
-export function CategoryBreakdownCharts({ data, timeSeries }: Props) {
+export function CategoryBreakdownCharts({ data, timeSeries, onSelectionChange }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  function select(id: string) {
+    const next = id === selectedId ? null : id;
+    setSelectedId(next);
+    onSelectionChange?.(next ? data.find((d) => d.id === next)?.name ?? null : null);
+  }
 
   const total = useMemo(() => data.reduce((sum, d) => sum + d.amount, 0), [data]);
   const selected = data.find((d) => d.id === selectedId) ?? null;
@@ -70,7 +77,7 @@ export function CategoryBreakdownCharts({ data, timeSeries }: Props) {
                       innerRadius={55}
                       outerRadius={90}
                       paddingAngle={2}
-                      onClick={(d) => setSelectedId(d.id === selectedId ? null : d.id)}
+                      onClick={(d) => select(d.id)}
                     >
                       {data.map((d) => (
                         <Cell
@@ -105,7 +112,7 @@ export function CategoryBreakdownCharts({ data, timeSeries }: Props) {
                   <Bar
                     dataKey="amount"
                     radius={[0, 6, 6, 0]}
-                    onClick={(d: any) => setSelectedId(d.id === selectedId ? null : d.id)}
+                    onClick={(d: any) => select(d.id)}
                     cursor="pointer"
                   >
                     {data.map((d) => (
