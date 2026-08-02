@@ -55,8 +55,11 @@ export function useMonthlyBreakdown(
       setRows([]);
     } else {
       const all = (data ?? []) as unknown as RawRow[];
+      // Le voci senza categoria (es. arrivate da Telegram senza un match)
+      // restano sempre visibili, indipendentemente dal tab Fisse/Variabili:
+      // meglio mostrarle come "Altro" che farle sparire silenziosamente.
       const filtered = categoryKindFilter
-        ? all.filter((r) => r.categories && categoryKindFilter.includes(r.categories.kind))
+        ? all.filter((r) => !r.categories || categoryKindFilter.includes(r.categories.kind))
         : all;
       setRows(filtered);
     }
