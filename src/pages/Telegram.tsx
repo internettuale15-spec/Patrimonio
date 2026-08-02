@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuthStore } from "@/store/authStore";
 import { supabase } from "@/lib/supabase";
 
-const BOT_USERNAME = "Par_Bot";
+const BOT_USERNAME = "Pat_Bot";
 
 function generateCode(length = 6) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // esclude caratteri ambigui
