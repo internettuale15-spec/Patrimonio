@@ -33,6 +33,11 @@ function lastNMonths(n: number) {
   return out;
 }
 
+export interface Insight {
+  type: "warning" | "positive" | "neutral";
+  text: string;
+}
+
 export function useDashboardData() {
   const householdId = useAuthStore((s) => s.householdId);
   const [loading, setLoading] = useState(true);
@@ -43,6 +48,7 @@ export function useDashboardData() {
     monthlyIncome: 0,
     monthlyExpense: 0,
     monthlySavings: 0,
+    monthlySavingsTrendPct: null,
     yearlyIncome: 0,
     yearlyExpense: 0,
     yearlySavings: 0,
@@ -53,6 +59,7 @@ export function useDashboardData() {
   const [netWorthHistory, setNetWorthHistory] = useState<MonthPoint[]>([]);
   const [savingsHistory, setSavingsHistory] = useState<MonthPoint[]>([]);
   const [recentMovements, setRecentMovements] = useState<Movement[]>([]);
+  const [insights, setInsights] = useState<Insight[]>([]);
 
   useEffect(() => {
     if (!householdId) {
@@ -74,6 +81,7 @@ export function useDashboardData() {
         { data: goals },
         { data: budgets },
         { data: snapshots },
+        { data: categories },
       ] = await Promise.all([
         supabase.from("incomes").select("id, amount, date, description").eq("household_id", householdId),
         supabase.from("expenses").select("id, amount, date, description, category_id").eq("household_id", householdId),
@@ -95,6 +103,7 @@ export function useDashboardData() {
           .select("date, net_worth")
           .eq("household_id", householdId)
           .order("date", { ascending: true }),
+        supabase.from("categories").select("id, name").eq("household_id", householdId),
       ]);
 
       if (cancelled) return;
@@ -173,6 +182,78 @@ export function useDashboardData() {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 5);
 
+      // --- Insight automatici: cosa vale la pena sapere questo mese ---
+      const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const prevMonthKey = monthKey(prevMonthDate.toISOString());
+      const categoryNameById = new Map((categories ?? []).map((c) => [c.id, c.name]));
+
+      const spendByCategory = (key: string) => {
+        const map = new Map<string, number>();
+        (expenses ?? [])
+          .filter((e) => monthKey(e.date) === key)
+          .forEach((e) => {
+            const k = e.category_id ?? "altro";
+            map.set(k, (map.get(k) ?? 0) + Number(e.amount));
+          });
+        return map;
+      };
+      const curByCat = spendByCategory(curMonthKey);
+      const prevByCat = spendByCategory(prevMonthKey);
+
+      const generatedInsights: Insight[] = [];
+
+      // 1) Sforamenti di budget — priorità massima, è actionable
+      const overBudget = (budgets ?? [])
+        .map((b) => {
+          const spent = (expenses ?? [])
+            .filter((e) => monthKey(e.date) === curMonthKey && e.category_id === b.category_id)
+            .reduce((s, e) => s + Number(e.amount), 0);
+          return { name: categoryNameById.get(b.category_id) ?? "una categoria", spent, budget: Number(b.amount) };
+        })
+        .filter((b) => b.spent > b.budget)
+        .sort((a, b) => b.spent - b.budget - (a.spent - a.budget))[0];
+
+      if (overBudget) {
+        generatedInsights.push({
+          type: "warning",
+          text: `Hai già superato il budget di "${overBudget.name}": ${overBudget.spent.toFixed(0)}€ su ${overBudget.budget.toFixed(0)}€ previsti questo mese.`,
+        });
+      }
+
+      // 2) Categoria con l'aumento più marcato rispetto al mese scorso
+      const jumps: { name: string; pct: number; diff: number }[] = [];
+      curByCat.forEach((amount, catId) => {
+        if (amount < 20) return; // ignora spese troppo piccole, aggiungono solo rumore
+        const prevAmount = prevByCat.get(catId) ?? 0;
+        if (prevAmount < 5) return; // niente da confrontare, non è un vero "aumento"
+        const diff = amount - prevAmount;
+        if (diff > 0) {
+          jumps.push({ name: categoryNameById.get(catId) ?? "Altro", pct: diff / prevAmount, diff });
+        }
+      });
+      const biggestJump = jumps.sort((a, b) => b.diff - a.diff)[0] ?? null;
+      if (biggestJump) {
+        generatedInsights.push({
+          type: "neutral",
+          text: `Questo mese hai speso il ${Math.round(biggestJump.pct * 100)}% in più in "${biggestJump.name}" rispetto al mese scorso (+${biggestJump.diff.toFixed(0)}€).`,
+        });
+      }
+
+      // 3) Andamento risparmio rispetto al mese scorso, come nota positiva/di chiusura
+      const prevMonthSavings = sumBy(incomes, (k) => k === prevMonthKey) - sumBy(expenses, (k) => k === prevMonthKey);
+      const curMonthSavings = monthlyIncome - monthlyExpense;
+      if (prevMonthSavings !== 0) {
+        const savingsDiff = curMonthSavings - prevMonthSavings;
+        if (savingsDiff > 0) {
+          generatedInsights.push({
+            type: "positive",
+            text: `Stai risparmiando ${savingsDiff.toFixed(0)}€ in più rispetto al mese scorso — bene così.`,
+          });
+        }
+      }
+
+      setInsights(generatedInsights.slice(0, 3));
+
       setSummary({
         netWorth,
         liquidity,
@@ -180,6 +261,8 @@ export function useDashboardData() {
         monthlyIncome,
         monthlyExpense,
         monthlySavings: monthlyIncome - monthlyExpense,
+        monthlySavingsTrendPct:
+          prevMonthSavings !== 0 ? (curMonthSavings - prevMonthSavings) / Math.abs(prevMonthSavings) : null,
         yearlyIncome,
         yearlyExpense,
         yearlySavings: yearlyIncome - yearlyExpense,
@@ -199,5 +282,5 @@ export function useDashboardData() {
     };
   }, [householdId]);
 
-  return { loading, summary, netWorthHistory, savingsHistory, recentMovements };
+  return { loading, summary, netWorthHistory, savingsHistory, recentMovements, insights };
 }
