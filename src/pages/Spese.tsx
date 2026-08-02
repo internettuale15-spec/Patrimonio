@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, TrendingDown } from "lucide-react";
+import { Plus, TrendingDown, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -18,7 +18,11 @@ function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
     loading, refetch, categoryData, timeSeries, transactionRows, monthTotal, prevMonthTotal, remove,
   } = useMonthlyBreakdown("expenses", householdId, [kind]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const delta = prevMonthTotal ? (monthTotal - prevMonthTotal) / prevMonthTotal : 0;
+  const visibleRows = filterCategory
+    ? transactionRows.filter((r) => r.categoryName === filterCategory)
+    : transactionRows;
 
   return (
     <div className="flex flex-col gap-4">
@@ -36,12 +40,22 @@ function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
       </div>
 
       {!loading && categoryData.length > 0 && (
-        <CategoryBreakdownCharts data={categoryData} timeSeries={timeSeries} />
+        <CategoryBreakdownCharts data={categoryData} timeSeries={timeSeries} onSelectionChange={setFilterCategory} />
       )}
 
       <div className="rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-medium mb-3">Movimenti del mese</h2>
-        <TransactionList rows={transactionRows} emptyLabel={`Nessuna spesa "${label.toLowerCase()}" registrata questo mese.`} onDelete={remove} kind="spesa" />
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-medium">Movimenti del mese</h2>
+          {filterCategory && (
+            <button
+              onClick={() => setFilterCategory(null)}
+              className="flex items-center gap-1 text-xs bg-muted rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
+            >
+              {filterCategory} <X size={12} />
+            </button>
+          )}
+        </div>
+        <TransactionList rows={visibleRows} emptyLabel={`Nessuna spesa "${label.toLowerCase()}" registrata questo mese.`} onDelete={remove} kind="spesa" />
       </div>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={`Nuova spesa ${label.toLowerCase()}`}>
