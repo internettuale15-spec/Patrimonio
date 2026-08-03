@@ -67,7 +67,7 @@ function CategoryRow({
           <span className="ml-2 text-[10px] text-muted-foreground align-middle">predefinita</span>
         )}
       </span>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
         <button onClick={() => setEditing(true)} className="p-1.5 rounded-full hover:bg-muted text-muted-foreground" aria-label="Rinomina">
           <Pencil size={13} />
         </button>
