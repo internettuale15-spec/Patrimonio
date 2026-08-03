@@ -1,6 +1,8 @@
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { INVESTMENT_TYPE_LABELS, type InvestmentWithDerived } from "@/hooks/useInvestments";
+import { AssetLogo } from "@/components/ui/AssetLogo";
+import { getInvestmentLogoUrl } from "@/lib/logos";
 
 export function InvestmentList({
   investments, onDelete,
@@ -16,13 +18,20 @@ export function InvestmentList({
     <div className="flex flex-col divide-y divide-border">
       {investments.map((inv) => (
         <div key={inv.id} className="flex items-center justify-between py-3 text-sm group">
-          <div>
-            <p className="font-medium">{inv.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {INVESTMENT_TYPE_LABELS[inv.type]}
-              {inv.broker ? ` · ${inv.broker}` : ""}
-              {inv.ticker ? ` · ${inv.ticker}` : ""}
-            </p>
+          <div className="flex items-center gap-3">
+            <AssetLogo
+              label={inv.ticker || inv.broker || inv.name}
+              url={getInvestmentLogoUrl(inv)}
+              size="md"
+            />
+            <div>
+              <p className="font-medium">{inv.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {INVESTMENT_TYPE_LABELS[inv.type]}
+                {inv.broker ? ` · ${inv.broker}` : ""}
+                {inv.ticker ? ` · ${inv.ticker}` : ""}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
