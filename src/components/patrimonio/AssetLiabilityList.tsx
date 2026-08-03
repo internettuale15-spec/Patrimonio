@@ -1,6 +1,8 @@
 import { formatCurrency } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { ASSET_TYPE_LABELS, LIABILITY_TYPE_LABELS } from "@/hooks/usePatrimonio";
+import { AssetLogo } from "@/components/ui/AssetLogo";
+import { getInstitutionLogoUrl } from "@/lib/logos";
 import type { Asset, Liability } from "@/types";
 
 export function AssetList({ assets, onDelete }: { assets: Asset[]; onDelete?: (id: string) => void }) {
@@ -11,9 +13,12 @@ export function AssetList({ assets, onDelete }: { assets: Asset[]; onDelete?: (i
     <div className="flex flex-col divide-y divide-border">
       {assets.map((a) => (
         <div key={a.id} className="flex items-center justify-between py-2.5 text-sm group">
-          <div>
-            <p className="font-medium">{a.name}</p>
-            <p className="text-xs text-muted-foreground">{ASSET_TYPE_LABELS[a.type]}</p>
+          <div className="flex items-center gap-3">
+            <AssetLogo label={a.name} url={getInstitutionLogoUrl(a.name)} size="sm" />
+            <div>
+              <p className="font-medium">{a.name}</p>
+              <p className="text-xs text-muted-foreground">{ASSET_TYPE_LABELS[a.type]}</p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <span className="tabular-nums font-medium text-success">{formatCurrency(a.value)}</span>
@@ -41,12 +46,15 @@ export function LiabilityList({ liabilities, onDelete }: { liabilities: Liabilit
     <div className="flex flex-col divide-y divide-border">
       {liabilities.map((l) => (
         <div key={l.id} className="flex items-center justify-between py-2.5 text-sm group">
-          <div>
-            <p className="font-medium">{l.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {LIABILITY_TYPE_LABELS[l.type]}
-              {l.monthly_payment ? ` · rata ${formatCurrency(l.monthly_payment)}/mese` : ""}
-            </p>
+          <div className="flex items-center gap-3">
+            <AssetLogo label={l.name} url={getInstitutionLogoUrl(l.name)} size="sm" />
+            <div>
+              <p className="font-medium">{l.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {LIABILITY_TYPE_LABELS[l.type]}
+                {l.monthly_payment ? ` · rata ${formatCurrency(l.monthly_payment)}/mese` : ""}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <span className="tabular-nums font-medium text-danger">{formatCurrency(l.remaining_amount)}</span>
