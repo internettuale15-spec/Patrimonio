@@ -59,7 +59,7 @@ export function DeadlineList({
             {onDelete && (
               <button
                 onClick={() => { if (confirm(`Eliminare "${d.title}"?`)) onDelete(d.id); }}
-                className="text-muted-foreground hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity"
+                className="text-muted-foreground hover:text-danger opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 -m-2"
                 aria-label="Elimina"
               >
                 <Trash2 size={14} />
