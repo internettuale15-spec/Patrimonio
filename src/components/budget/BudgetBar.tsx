@@ -28,7 +28,7 @@ export function BudgetBar({ row, onDelete }: { row: BudgetRow; onDelete?: (id: s
           {onDelete && (
             <button
               onClick={() => { if (confirm(`Eliminare il budget per "${row.categoryName}"?`)) onDelete(row.id); }}
-              className="text-muted-foreground hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+              className="text-muted-foreground hover:text-danger opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0 p-2 -m-2"
               aria-label="Elimina"
             >
               <Trash2 size={14} />
