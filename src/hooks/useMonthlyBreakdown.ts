@@ -31,7 +31,8 @@ function monthLabel(d: Date) {
 export function useMonthlyBreakdown(
   table: "incomes" | "expenses" | "home_expenses",
   householdId: string | null,
-  categoryKindFilter?: CategoryKind[]
+  categoryKindFilter?: CategoryKind[],
+  viewDate: Date = new Date()
 ) {
   const [rows, setRows] = useState<RawRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +71,7 @@ export function useMonthlyBreakdown(
     refetch();
   }, [refetch]);
 
-  const now = new Date();
+  const now = viewDate;
   const currentKey = monthKey(now);
   const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const prevKey = monthKey(prevDate);
