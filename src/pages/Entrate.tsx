@@ -3,6 +3,7 @@ import { Plus, TrendingUp, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { MonthNavigator } from "@/components/ui/MonthNavigator";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { CategoryBreakdownCharts } from "@/components/charts/CategoryBreakdownCharts";
@@ -12,9 +13,10 @@ import { formatCurrency } from "@/lib/utils";
 
 export default function Entrate() {
   const { householdId, profile } = useAuthStore();
+  const [viewDate, setViewDate] = useState(new Date());
   const {
     loading, refetch, categoryData, timeSeries, transactionRows, monthTotal, prevMonthTotal, yearTotal, remove,
-  } = useMonthlyBreakdown("incomes", householdId);
+  } = useMonthlyBreakdown("incomes", householdId, undefined, viewDate);
   const [modalOpen, setModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
 
@@ -53,17 +55,20 @@ export default function Entrate() {
 
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium">Movimenti del mese</h2>
-          {filterCategory && (
-            <button
-              onClick={() => setFilterCategory(null)}
-              className="flex items-center gap-1 text-xs bg-muted rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
-            >
-              {filterCategory} <X size={12} />
-            </button>
-          )}
+          <h2 className="text-sm font-medium">Movimenti</h2>
+          <div className="flex items-center gap-3">
+            {filterCategory && (
+              <button
+                onClick={() => setFilterCategory(null)}
+                className="flex items-center gap-1 text-xs bg-muted rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
+              >
+                {filterCategory} <X size={12} />
+              </button>
+            )}
+            <MonthNavigator viewDate={viewDate} onChange={setViewDate} />
+          </div>
         </div>
-        <TransactionList rows={visibleRows} emptyLabel="Nessuna entrata registrata questo mese." onDelete={remove} kind="entrata" />
+        <TransactionList rows={visibleRows} emptyLabel="Nessuna entrata registrata in questo mese." onDelete={remove} kind="entrata" />
       </div>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nuova entrata">

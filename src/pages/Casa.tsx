@@ -3,6 +3,7 @@ import { Plus, Home as HomeIcon, Info, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { MonthNavigator } from "@/components/ui/MonthNavigator";
 import { CasaForm } from "@/components/transactions/CasaForm";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { CategoryBreakdownCharts } from "@/components/charts/CategoryBreakdownCharts";
@@ -12,9 +13,10 @@ import { formatCurrency } from "@/lib/utils";
 
 export default function Casa() {
   const { householdId, profile } = useAuthStore();
+  const [viewDate, setViewDate] = useState(new Date());
   const {
     loading, refetch, categoryData, timeSeries, transactionRows, monthTotal, yearTotal, remove,
-  } = useMonthlyBreakdown("home_expenses", householdId);
+  } = useMonthlyBreakdown("home_expenses", householdId, undefined, viewDate);
   const [modalOpen, setModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const visibleRows = filterCategory
@@ -52,17 +54,20 @@ export default function Casa() {
 
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium">Movimenti del mese</h2>
-          {filterCategory && (
-            <button
-              onClick={() => setFilterCategory(null)}
-              className="flex items-center gap-1 text-xs bg-muted rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
-            >
-              {filterCategory} <X size={12} />
-            </button>
-          )}
+          <h2 className="text-sm font-medium">Movimenti</h2>
+          <div className="flex items-center gap-3">
+            {filterCategory && (
+              <button
+                onClick={() => setFilterCategory(null)}
+                className="flex items-center gap-1 text-xs bg-muted rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
+              >
+                {filterCategory} <X size={12} />
+              </button>
+            )}
+            <MonthNavigator viewDate={viewDate} onChange={setViewDate} />
+          </div>
         </div>
-        <TransactionList rows={visibleRows} emptyLabel="Nessuna spesa casa registrata questo mese." onDelete={remove} kind="casa" />
+        <TransactionList rows={visibleRows} emptyLabel="Nessuna spesa casa registrata in questo mese." onDelete={remove} kind="casa" />
       </div>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nuova spesa Casa">

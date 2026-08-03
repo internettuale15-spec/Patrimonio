@@ -4,6 +4,7 @@ import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Tabs } from "@/components/ui/Tabs";
+import { MonthNavigator } from "@/components/ui/MonthNavigator";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { CategoryBreakdownCharts } from "@/components/charts/CategoryBreakdownCharts";
@@ -14,9 +15,10 @@ import type { CategoryKind } from "@/types";
 
 function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
   const { householdId, profile } = useAuthStore();
+  const [viewDate, setViewDate] = useState(new Date());
   const {
     loading, refetch, categoryData, timeSeries, transactionRows, monthTotal, prevMonthTotal, remove,
-  } = useMonthlyBreakdown("expenses", householdId, [kind]);
+  } = useMonthlyBreakdown("expenses", householdId, [kind], viewDate);
   const [modalOpen, setModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const delta = prevMonthTotal ? (monthTotal - prevMonthTotal) / prevMonthTotal : 0;
@@ -45,17 +47,20 @@ function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
 
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium">Movimenti del mese</h2>
-          {filterCategory && (
-            <button
-              onClick={() => setFilterCategory(null)}
-              className="flex items-center gap-1 text-xs bg-muted rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
-            >
-              {filterCategory} <X size={12} />
-            </button>
-          )}
+          <h2 className="text-sm font-medium">Movimenti</h2>
+          <div className="flex items-center gap-3">
+            {filterCategory && (
+              <button
+                onClick={() => setFilterCategory(null)}
+                className="flex items-center gap-1 text-xs bg-muted rounded-full px-2.5 py-1 text-muted-foreground hover:text-foreground"
+              >
+                {filterCategory} <X size={12} />
+              </button>
+            )}
+            <MonthNavigator viewDate={viewDate} onChange={setViewDate} />
+          </div>
         </div>
-        <TransactionList rows={visibleRows} emptyLabel={`Nessuna spesa "${label.toLowerCase()}" registrata questo mese.`} onDelete={remove} kind="spesa" />
+        <TransactionList rows={visibleRows} emptyLabel={`Nessuna spesa "${label.toLowerCase()}" registrata in questo mese.`} onDelete={remove} kind="spesa" />
       </div>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={`Nuova spesa ${label.toLowerCase()}`}>
