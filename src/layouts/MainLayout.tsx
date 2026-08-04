@@ -1,72 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
-import {
-  LayoutDashboard, TrendingUp, TrendingDown, Home as HomeIcon,
-  LineChart, Wallet, Target, PiggyBank, Calendar as CalendarIcon,
-  FileText, Search, Moon, Sun, Sparkles, Settings, Sprout, Send, Repeat, Tags, ShieldCheck,
-} from "lucide-react";
+import { Moon, Sun, Sprout, Settings, Menu } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 import { OnboardingTutorial } from "@/components/OnboardingTutorial";
-
-interface NavItem {
-  to: string;
-  label: string;
-  icon: typeof LayoutDashboard;
-  end?: boolean;
-}
-
-// Menu raggruppato per area di senso, non più un elenco piatto di 14 voci —
-// riduce il carico cognitivo di dover scorrere tutto per trovare quello che serve.
-const NAV_GROUPS: { label: string | null; items: NavItem[] }[] = [
-  {
-    label: null,
-    items: [{ to: "/", label: "Dashboard", icon: LayoutDashboard, end: true }],
-  },
-  {
-    label: "Movimenti",
-    items: [
-      { to: "/entrate", label: "Entrate", icon: TrendingUp },
-      { to: "/spese", label: "Spese", icon: TrendingDown },
-      { to: "/casa", label: "Casa", icon: HomeIcon },
-    ],
-  },
-  {
-    label: "Patrimonio",
-    items: [
-      { to: "/investimenti", label: "Investimenti", icon: LineChart },
-      { to: "/patrimonio", label: "Patrimonio", icon: Wallet },
-      { to: "/obiettivi", label: "Obiettivi", icon: Target },
-    ],
-  },
-  {
-    label: "Pianificazione",
-    items: [
-      { to: "/budget", label: "Budget", icon: PiggyBank },
-      { to: "/ricorrenze", label: "Ricorrenze", icon: Repeat },
-      { to: "/calendario", label: "Calendario", icon: CalendarIcon },
-    ],
-  },
-  {
-    label: "Strumenti",
-    items: [
-      { to: "/categorie", label: "Categorie", icon: Tags },
-      { to: "/consulente", label: "Consulente", icon: ShieldCheck },
-      { to: "/report", label: "Report", icon: FileText },
-      { to: "/previsioni", label: "Previsioni", icon: Sparkles },
-      { to: "/telegram", label: "Telegram", icon: Send },
-    ],
-  },
-];
-
-// Le 4 destinazioni più usate quotidianamente, per la bottom nav mobile
-// (spazio limitato — il resto resta raggiungibile da "Tu" → menu completo)
-const MOBILE_NAV_ITEMS: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/spese", label: "Spese", icon: TrendingDown },
-  { to: "/entrate", label: "Entrate", icon: TrendingUp },
-  { to: "/budget", label: "Budget", icon: PiggyBank },
-];
+import { SearchBar } from "@/components/SearchBar";
+import { MobileMenuDrawer } from "@/components/MobileMenuDrawer";
+import { NAV_GROUPS, MOBILE_NAV_ITEMS, type NavItem } from "@/layouts/navConfig";
 
 function NavItemLink({ item }: { item: NavItem }) {
   return (
@@ -90,6 +30,7 @@ function NavItemLink({ item }: { item: NavItem }) {
 
 export default function MainLayout() {
   const [dark, setDark] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const profile = useAuthStore((s) => s.profile);
 
   const toggleDark = () => {
@@ -102,6 +43,8 @@ export default function MainLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <OnboardingTutorial />
+      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} groups={NAV_GROUPS} />
+
       {/* Sidebar desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground p-4 gap-0.5 shrink-0 overflow-y-auto">
         <div className="flex items-center justify-between mb-4 px-2">
@@ -147,15 +90,9 @@ export default function MainLayout() {
 
       {/* Contenuto */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="flex items-center justify-between border-b border-border px-4 py-3 md:px-6 bg-card">
-          <div className="flex items-center gap-2 text-muted-foreground w-full max-w-sm bg-muted rounded-full px-3 py-1.5">
-            <Search size={16} />
-            <input
-              placeholder="Cerca categoria, descrizione, importo..."
-              className="bg-transparent outline-none text-sm w-full"
-            />
-          </div>
-          <button onClick={toggleDark} className="md:hidden p-2 rounded-full hover:bg-muted">
+        <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3 md:px-6 bg-card">
+          <SearchBar />
+          <button onClick={toggleDark} className="md:hidden p-2 rounded-full hover:bg-muted shrink-0">
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </header>
@@ -183,18 +120,13 @@ export default function MainLayout() {
             {label}
           </NavLink>
         ))}
-        <NavLink
-          to="/impostazioni"
-          className={({ isActive }) =>
-            cn(
-              "flex flex-col items-center gap-0.5 text-[10px] px-2 py-1 rounded-full",
-              isActive ? "text-primary" : "text-muted-foreground"
-            )
-          }
+        <button
+          onClick={() => setMenuOpen(true)}
+          className="flex flex-col items-center gap-0.5 text-[10px] px-2 py-1 rounded-full text-muted-foreground"
         >
-          <Settings size={20} />
-          Tu
-        </NavLink>
+          <Menu size={20} />
+          Altro
+        </button>
       </nav>
     </div>
   );
