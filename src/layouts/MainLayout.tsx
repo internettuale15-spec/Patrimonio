@@ -2,11 +2,12 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard, TrendingUp, TrendingDown, Home as HomeIcon,
   LineChart, Wallet, Target, PiggyBank, Calendar as CalendarIcon,
-  FileText, Search, Moon, Sun, Sparkles, Settings, Sprout, Send, Repeat, Tags,
+  FileText, Search, Moon, Sun, Sparkles, Settings, Sprout, Send, Repeat, Tags, ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
+import { OnboardingTutorial } from "@/components/OnboardingTutorial";
 
 interface NavItem {
   to: string;
@@ -50,6 +51,7 @@ const NAV_GROUPS: { label: string | null; items: NavItem[] }[] = [
     label: "Strumenti",
     items: [
       { to: "/categorie", label: "Categorie", icon: Tags },
+      { to: "/consulente", label: "Consulente", icon: ShieldCheck },
       { to: "/report", label: "Report", icon: FileText },
       { to: "/previsioni", label: "Previsioni", icon: Sparkles },
       { to: "/telegram", label: "Telegram", icon: Send },
@@ -99,6 +101,7 @@ export default function MainLayout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
+      <OnboardingTutorial />
       {/* Sidebar desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-sidebar text-sidebar-foreground p-4 gap-0.5 shrink-0 overflow-y-auto">
         <div className="flex items-center justify-between mb-4 px-2">
