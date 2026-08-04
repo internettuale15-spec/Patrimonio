@@ -10,6 +10,7 @@ import Patrimonio from "@/pages/Patrimonio";
 import Obiettivi from "@/pages/Obiettivi";
 import Budget from "@/pages/Budget";
 import Categorie from "@/pages/Categorie";
+import Consulente from "@/pages/Consulente";
 import Calendario from "@/pages/Calendario";
 import Ricorrenze from "@/pages/Ricorrenze";
 import Report from "@/pages/Report";
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="obiettivi" element={<Obiettivi />} />
           <Route path="budget" element={<Budget />} />
           <Route path="categorie" element={<Categorie />} />
+          <Route path="consulente" element={<Consulente />} />
           <Route path="calendario" element={<Calendario />} />
           <Route path="ricorrenze" element={<Ricorrenze />} />
           <Route path="report" element={<Report />} />
