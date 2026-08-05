@@ -57,7 +57,7 @@ export function SearchBar() {
               {matchingPages.map((p) => (
                 <button
                   key={p.to}
-                  onClick={() => goToPage(p.to)}
+                  onMouseDown={(e) => { e.preventDefault(); goToPage(p.to); }}
                   className="w-full flex items-center justify-between gap-3 px-4 py-2 text-sm hover:bg-muted text-left"
                 >
                   <div className="flex items-center gap-2">
@@ -87,7 +87,7 @@ export function SearchBar() {
                 {results.map((r) => (
                   <button
                     key={`${r.type}-${r.id}`}
-                    onClick={() => goTo(r.type)}
+                    onMouseDown={(e) => { e.preventDefault(); goTo(r.type); }}
                     className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-muted text-left"
                   >
                     <div className="flex items-center gap-2 min-w-0">
