@@ -13,15 +13,16 @@ interface TransactionFormProps {
   table: "incomes" | "expenses";
   categoryKind: CategoryKind;
   allowAttachment?: boolean;
+  presetCategoryId?: string;
   onSuccess?: () => void;
 }
 
 export function TransactionForm({
-  householdId, userId, table, categoryKind, allowAttachment, onSuccess,
+  householdId, userId, table, categoryKind, allowAttachment, presetCategoryId, onSuccess,
 }: TransactionFormProps) {
   const { categories, loading: loadingCategories } = useCategories(householdId, categoryKind);
 
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryId, setCategoryId] = useState(presetCategoryId ?? "");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [description, setDescription] = useState("");
