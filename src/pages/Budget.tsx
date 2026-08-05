@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { BudgetForm } from "@/components/budget/BudgetForm";
 import { BudgetBar } from "@/components/budget/BudgetBar";
+import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { useBudgets } from "@/hooks/useBudgets";
 import { useAuthStore } from "@/store/authStore";
 import { formatCurrency, formatPercent } from "@/lib/utils";
@@ -12,11 +13,14 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 const now = new Date();
 
 export default function Budget() {
-  const { householdId } = useAuthStore();
+  const { householdId, profile } = useAuthStore();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
-  const { rows, loading, refetch, totalBudget, totalSpent, totalPct, deleteBudget } = useBudgets(householdId, month, year);
+  const {
+    rows, loading, refetch, totalBudget, totalSpent, totalPct, deleteBudget, updateBudgetAmount,
+  } = useBudgets(householdId, month, year);
   const [modalOpen, setModalOpen] = useState(false);
+  const [expenseRow, setExpenseRow] = useState<{ categoryId: string; categoryKind: string } | null>(null);
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,7 +47,13 @@ export default function Budget() {
       {!loading && (
         <div className="grid md:grid-cols-2 gap-3">
           {rows.map((row) => (
-            <BudgetBar key={row.id} row={row} onDelete={deleteBudget} />
+            <BudgetBar
+              key={row.id}
+              row={row}
+              onDelete={deleteBudget}
+              onEditAmount={updateBudgetAmount}
+              onQuickExpense={() => setExpenseRow({ categoryId: row.categoryId, categoryKind: row.categoryKind })}
+            />
           ))}
         </div>
       )}
@@ -61,6 +71,19 @@ export default function Budget() {
             month={month}
             year={year}
             onSuccess={() => { setModalOpen(false); refetch(); }}
+          />
+        )}
+      </Modal>
+
+      <Modal open={!!expenseRow} onClose={() => setExpenseRow(null)} title="Registra spesa">
+        {householdId && profile && expenseRow && (
+          <TransactionForm
+            householdId={householdId}
+            userId={profile.id}
+            table="expenses"
+            categoryKind={expenseRow.categoryKind as any}
+            presetCategoryId={expenseRow.categoryId}
+            onSuccess={() => { setExpenseRow(null); refetch(); }}
           />
         )}
       </Modal>

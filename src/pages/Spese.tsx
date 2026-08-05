@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, TrendingDown, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/Button";
@@ -16,9 +16,10 @@ import type { CategoryKind } from "@/types";
 function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
   const { householdId, profile } = useAuthStore();
   const [viewDate, setViewDate] = useState(new Date());
+  const kindFilter = useMemo(() => [kind], [kind]);
   const {
     loading, refetch, categoryData, timeSeries, transactionRows, monthTotal, prevMonthTotal, remove,
-  } = useMonthlyBreakdown("expenses", householdId, [kind], viewDate);
+  } = useMonthlyBreakdown("expenses", householdId, kindFilter, viewDate);
   const [modalOpen, setModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const delta = prevMonthTotal ? (monthTotal - prevMonthTotal) / prevMonthTotal : 0;
