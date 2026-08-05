@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { budgetColor } from "@/lib/utils";
+import type { CategoryKind } from "@/types";
 
 export interface BudgetRow {
   id: string;
   categoryId: string;
   categoryName: string;
+  categoryKind: CategoryKind;
   budgetAmount: number;
   spent: number;
   remaining: number;
@@ -24,7 +26,7 @@ export function useBudgets(householdId: string | null, month: number, year: numb
     const [budgetsRes, expensesRes] = await Promise.all([
       supabase
         .from("budgets")
-        .select("id, amount, category_id, categories(name)")
+        .select("id, amount, category_id, categories(name, kind)")
         .eq("household_id", householdId)
         .eq("month", month)
         .eq("year", year),
@@ -35,7 +37,7 @@ export function useBudgets(householdId: string | null, month: number, year: numb
     ]);
 
     const budgets = (budgetsRes.data ?? []) as unknown as {
-      id: string; amount: number; category_id: string; categories: { name: string } | null;
+      id: string; amount: number; category_id: string; categories: { name: string; kind: CategoryKind } | null;
     }[];
 
     const spentByCategory = new Map<string, number>();
@@ -53,6 +55,7 @@ export function useBudgets(householdId: string | null, month: number, year: numb
         id: b.id,
         categoryId: b.category_id,
         categoryName: b.categories?.name ?? "Categoria",
+        categoryKind: b.categories?.kind ?? "spesa_variabile",
         budgetAmount: b.amount,
         spent,
         remaining: b.amount - spent,
@@ -79,5 +82,11 @@ export function useBudgets(householdId: string | null, month: number, year: numb
     await refetch();
   }
 
-  return { rows, loading, refetch, totalBudget, totalSpent, totalPct, deleteBudget };
+  async function updateBudgetAmount(id: string, amount: number) {
+    const { error } = await supabase.from("budgets").update({ amount }).eq("id", id);
+    if (error) throw error;
+    await refetch();
+  }
+
+  return { rows, loading, refetch, totalBudget, totalSpent, totalPct, deleteBudget, updateBudgetAmount };
 }
