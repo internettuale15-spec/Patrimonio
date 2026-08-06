@@ -11,7 +11,7 @@ interface TransactionFormProps {
   householdId: string;
   userId: string;
   table: "incomes" | "expenses";
-  categoryKind: CategoryKind;
+  categoryKind: CategoryKind | CategoryKind[];
   allowAttachment?: boolean;
   presetCategoryId?: string;
   onSuccess?: () => void;
