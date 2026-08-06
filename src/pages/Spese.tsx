@@ -3,7 +3,6 @@ import { Plus, TrendingDown, X } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Tabs } from "@/components/ui/Tabs";
 import { MonthNavigator } from "@/components/ui/MonthNavigator";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { TransactionList } from "@/components/transactions/TransactionList";
@@ -11,12 +10,13 @@ import { CategoryBreakdownCharts } from "@/components/charts/CategoryBreakdownCh
 import { useMonthlyBreakdown } from "@/hooks/useMonthlyBreakdown";
 import { useAuthStore } from "@/store/authStore";
 import { formatCurrency } from "@/lib/utils";
-import type { CategoryKind } from "@/types";
 
-function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
+const EXPENSE_KINDS = ["spesa_fissa", "spesa_variabile"] as const;
+
+export default function Spese() {
   const { householdId, profile } = useAuthStore();
   const [viewDate, setViewDate] = useState(new Date());
-  const kindFilter = useMemo(() => [kind], [kind]);
+  const kindFilter = useMemo(() => [...EXPENSE_KINDS], []);
   const {
     loading, refetch, categoryData, timeSeries, transactionRows, monthTotal, prevMonthTotal, remove,
   } = useMonthlyBreakdown("expenses", householdId, kindFilter, viewDate);
@@ -28,18 +28,26 @@ function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
     : transactionRows;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">Spese</h1>
+          <p className="text-sm text-muted-foreground">Tutte le spese del nucleo familiare</p>
+        </div>
+        <Button onClick={() => setModalOpen(true)}>
+          <Plus size={16} /> Aggiungi
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
         <StatCard
-          label={`${label} — Mese`}
+          label="Spese Mese"
           value={formatCurrency(monthTotal)}
           icon={TrendingDown}
           accent="danger"
           trend={{ value: `${Math.abs(delta * 100).toFixed(0)}%`, positive: delta <= 0 }}
         />
-        <Button size="sm" onClick={() => setModalOpen(true)} className="ml-3">
-          <Plus size={16} /> Aggiungi
-        </Button>
+        <StatCard label="Mese Precedente" value={formatCurrency(prevMonthTotal)} icon={TrendingDown} />
       </div>
 
       {!loading && categoryData.length > 0 && (
@@ -61,16 +69,16 @@ function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
             <MonthNavigator viewDate={viewDate} onChange={setViewDate} />
           </div>
         </div>
-        <TransactionList rows={visibleRows} emptyLabel={`Nessuna spesa "${label.toLowerCase()}" registrata in questo mese.`} onDelete={remove} kind="spesa" />
+        <TransactionList rows={visibleRows} emptyLabel="Nessuna spesa registrata in questo mese." onDelete={remove} kind="spesa" />
       </div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={`Nuova spesa ${label.toLowerCase()}`}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nuova spesa">
         {householdId && profile && (
           <TransactionForm
             householdId={householdId}
             userId={profile.id}
             table="expenses"
-            categoryKind={kind}
+            categoryKind={kindFilter}
             allowAttachment
             onSuccess={() => {
               setModalOpen(false);
@@ -79,24 +87,6 @@ function SpeseSection({ kind, label }: { kind: CategoryKind; label: string }) {
           />
         )}
       </Modal>
-    </div>
-  );
-}
-
-export default function Spese() {
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">Spese</h1>
-        <p className="text-sm text-muted-foreground">Spese fisse e variabili del nucleo familiare</p>
-      </div>
-
-      <Tabs
-        tabs={[
-          { key: "fisse", label: "Fisse", content: <SpeseSection kind="spesa_fissa" label="Fisse" /> },
-          { key: "variabili", label: "Variabili", content: <SpeseSection kind="spesa_variabile" label="Variabili" /> },
-        ]}
-      />
     </div>
   );
 }
